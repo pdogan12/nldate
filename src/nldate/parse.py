@@ -1,27 +1,62 @@
 import re
 from datetime import date, timedelta
 
-WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday",
-            "friday", "saturday", "sunday"]
+WEEKDAYS = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+]
 
 MONTHS = {
-    "january": 1, "february": 2, "march": 3, "april": 4,
-    "may": 5, "june": 6, "july": 7, "august": 8,
-    "september": 9, "october": 10, "november": 11, "december": 12,
-    "jan": 1, "feb": 2, "mar": 3, "apr": 4,
-    "jun": 6, "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
+    "december": 12,
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
 }
 
 WORD_TO_NUM = {
-    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
-    "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
 }
+
 
 def _to_int(s: str) -> int:
     s = s.strip()
     if s.isdigit():
         return int(s)
     return WORD_TO_NUM.get(s.lower(), 0)
+
 
 def _parse_base(s: str, today: date) -> date:
     if s == "today":
@@ -31,6 +66,7 @@ def _parse_base(s: str, today: date) -> date:
     if s == "yesterday":
         return today - timedelta(days=1)
     return _try_absolute(s) or today
+
 
 def _try_absolute(s: str) -> date | None:
     pattern = r"(\w+)\s+(\d+)(?:st|nd|rd|th)?,?\s+(\d{4})"
@@ -47,6 +83,7 @@ def _try_absolute(s: str) -> date | None:
         return date(int(iso.group(1)), int(iso.group(2)), int(iso.group(3)))
     return None
 
+
 def _try_keywords(s: str, today: date) -> date | None:
     if s == "today":
         return today
@@ -55,6 +92,7 @@ def _try_keywords(s: str, today: date) -> date | None:
     if s == "yesterday":
         return today - timedelta(days=1)
     return None
+
 
 def _try_relative(s: str, today: date) -> date | None:
     # "in 5 days", "in 2 weeks", "in 1 year"
@@ -70,6 +108,7 @@ def _try_relative(s: str, today: date) -> date | None:
         unit = m.group(2).lower().rstrip("s")
         return _apply_offset(today, n, unit)
     return None
+
 
 def _try_next_last_weekday(s: str, today: date) -> date | None:
     m = re.fullmatch(r"(next|last) (\w+)", s, re.IGNORECASE)
@@ -92,10 +131,12 @@ def _try_next_last_weekday(s: str, today: date) -> date | None:
         delta = -delta
     return today + timedelta(days=delta)
 
+
 def _try_offset_from_base(s: str, today: date) -> date | None:
     m = re.fullmatch(
         r"(\w+) (days?|weeks?|months?|years?) (before|after|from) (.+)",
-        s, re.IGNORECASE
+        s,
+        re.IGNORECASE,
     )
     if m:
         n = _to_int(m.group(1))
@@ -107,6 +148,7 @@ def _try_offset_from_base(s: str, today: date) -> date | None:
         else:
             return _apply_offset(base, n, unit)
     return None
+
 
 def _apply_offset(base: date, n: int, unit: str) -> date:
     unit = unit.rstrip("s")
@@ -122,6 +164,7 @@ def _apply_offset(base: date, n: int, unit: str) -> date:
     if unit == "year":
         return date(base.year + n, base.month, base.day)
     return base
+
 
 def parse(s: str, today: date | None = None) -> date:
     today = today or date.today()
