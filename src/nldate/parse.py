@@ -69,7 +69,7 @@ def _parse_base(s: str, today: date) -> date:
 
 
 def _try_absolute(s: str) -> date | None:
-    pattern = r"(\w+)\s+(\d+)(?:st|nd|rd|th)?,?\s+(\d{4})"
+    pattern = r"([\w.]+)\s+(\d+)(?:st|nd|rd|th)?,?\s+(\d{4})"
     m = re.fullmatch(pattern, s.strip(), re.IGNORECASE)
     if m:
         month = MONTHS.get(m.group(1).lower().rstrip("."))
