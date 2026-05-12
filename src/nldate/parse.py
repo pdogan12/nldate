@@ -112,6 +112,14 @@ def _try_relative(s: str, today: date) -> date | None:
         n = _to_int(m.group(1))
         unit = m.group(2).lower().rstrip("s")
         return _apply_offset(today, n, unit)
+
+    # "3 days ago", "2 weeks ago"
+    m = re.fullmatch(r"(\w+) (days?|weeks?|months?|years?) ago", s, re.IGNORECASE)
+    if m:
+        n = _to_int(m.group(1))
+        unit = m.group(2).lower().rstrip("s")
+        return _apply_offset(today, -n, unit)
+
     return None
 
 
