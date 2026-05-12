@@ -78,12 +78,12 @@ def _try_absolute(s: str) -> date | None:
         if month:
             return date(year, month, day)
     # "2025-12-01"
-    iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", s.strip())
+    iso = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", s.strip())
     if iso:
         return date(int(iso.group(1)), int(iso.group(2)), int(iso.group(3)))
 
     # "2025/12/04"
-    slash = re.fullmatch(r"(\d{4})/(\d{2})/(\d{2})", s.strip())
+    slash = re.fullmatch(r"(\d{4})/(\d{1,2})/(\d{1,2})", s.strip())
     if slash:
         return date(int(slash.group(1)), int(slash.group(2)), int(slash.group(3)))
     return None
