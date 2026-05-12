@@ -81,6 +81,11 @@ def _try_absolute(s: str) -> date | None:
     iso = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", s.strip())
     if iso:
         return date(int(iso.group(1)), int(iso.group(2)), int(iso.group(3)))
+
+    # "2025/12/04"
+    slash = re.fullmatch(r"(\d{4})/(\d{2})/(\d{2})", s.strip())
+    if slash:
+        return date(int(slash.group(1)), int(slash.group(2)), int(slash.group(3)))
     return None
 
 
