@@ -55,6 +55,8 @@ def _to_int(s: str) -> int:
     s = s.strip()
     if s.isdigit():
         return int(s)
+    if s.lower() == "a" or s.lower() == "an":
+        return 1
     return WORD_TO_NUM.get(s.lower(), 0)
 
 
