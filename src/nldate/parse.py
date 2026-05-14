@@ -148,21 +148,37 @@ def _try_next_last_weekday(s: str, today: date) -> date | None:
 
 
 def _try_offset_from_base(s: str, today: date) -> date | None:
+    # Match compound offsets: "2 years, 3 months before Dec. 1, 2025"
+    # or simple: "5 days before tomorrow"
     m = re.fullmatch(
-        r"(\w+) (days?|weeks?|months?|years?) (before|after|from) (.+)",
+        r"([\w,.\s]+?)\s+(before|after|from)\s+(.+)",
         s,
         re.IGNORECASE,
     )
-    if m:
-        n = _to_int(m.group(1))
-        unit = m.group(2).lower().rstrip("s")
-        direction = m.group(3).lower()
-        base = _parse_base(m.group(4).strip(), today)
+    if not m:
+        return None
+
+    offset_str = m.group(1).strip()
+    direction = m.group(2).lower()
+    base = _parse_base(m.group(3).strip(), today)
+
+    # Parse one or more offset chunks: "2 years, 3 months" or "5 days"
+    chunks = re.findall(
+        r"(\w+)\s+(days?|weeks?|months?|years?)", offset_str, re.IGNORECASE
+    )
+    if not chunks:
+        return None
+
+    result = base
+    for amount_str, unit_str in chunks:
+        n = _to_int(amount_str)
+        unit = unit_str.lower().rstrip("s")
         if direction == "before":
-            return _apply_offset(base, -n, unit)
+            result = _apply_offset(result, -n, unit)
         else:
-            return _apply_offset(base, n, unit)
-    return None
+            result = _apply_offset(result, n, unit)
+
+    return result
 
 
 def _apply_offset(base: date, n: int, unit: str) -> date:
