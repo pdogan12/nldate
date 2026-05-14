@@ -79,12 +79,11 @@ def _try_absolute(s: str) -> date | None:
         year = int(m.group(3))
         if month:
             return date(year, month, day)
-    # "2025-12-01"
+
     iso = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", s.strip())
     if iso:
         return date(int(iso.group(1)), int(iso.group(2)), int(iso.group(3)))
 
-    # "2025/12/04"
     slash = re.fullmatch(r"(\d{4})/(\d{1,2})/(\d{1,2})", s.strip())
     if slash:
         return date(int(slash.group(1)), int(slash.group(2)), int(slash.group(3)))
@@ -106,7 +105,6 @@ def _try_keywords(s: str, today: date) -> date | None:
 
 
 def _try_relative(s: str, today: date) -> date | None:
-    # "in 5 days", "in 2 weeks", "in 1 year"
     m = re.fullmatch(r"in (\w+) (days?|weeks?|months?|years?)", s, re.IGNORECASE)
     if m:
         n = _to_int(m.group(1))
@@ -152,8 +150,6 @@ def _try_next_last_weekday(s: str, today: date) -> date | None:
 
 
 def _try_offset_from_base(s: str, today: date) -> date | None:
-    # Match compound offsets: "2 years, 3 months before Dec. 1, 2025"
-    # or simple: "5 days before tomorrow"
     m = re.fullmatch(
         r"([\w,.\s]+?)\s+(before|after|from)\s+(.+)",
         s,
@@ -166,7 +162,6 @@ def _try_offset_from_base(s: str, today: date) -> date | None:
     direction = m.group(2).lower()
     base = _parse_base(m.group(3).strip(), today)
 
-    # Parse one or more offset chunks: "2 years, 3 months" or "5 days"
     chunks = re.findall(
         r"(\w+)\s+(days?|weeks?|months?|years?)", offset_str, re.IGNORECASE
     )
